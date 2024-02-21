@@ -27,3 +27,4 @@ C:\Users\swerd\Desktop\azure\BlazorHelloWorld\obj\Debug\net8.0\refint\BlazorHell
 C:\Users\swerd\Desktop\azure\BlazorHelloWorld\obj\Debug\net8.0\BlazorHelloWorld.pdb
 C:\Users\swerd\Desktop\azure\BlazorHelloWorld\obj\Debug\net8.0\BlazorHelloWorld.genruntimeconfig.cache
 C:\Users\swerd\Desktop\azure\BlazorHelloWorld\obj\Debug\net8.0\ref\BlazorHelloWorld.dll
+C:\Users\swerd\Desktop\azure\BlazorHelloWorld\obj\Debug\net8.0\BlazorHelloWorld.sourcelink.json
