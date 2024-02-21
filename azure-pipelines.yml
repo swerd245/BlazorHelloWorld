@@ -11,7 +11,7 @@ steps:
     version: '6.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- script: dotnet build $(Build.SourcesDirectory)/src/BlazorHelloWorld/BlazorHelloWorld.csproj -c Release
+- script: dotnet build $(Build.SourcesDirectory)/src/BlazorHelloWorld.csproj -c Release
   displayName: 'Build Blazor app'
 
 - script: dotnet publish $(Build.SourcesDirectory)/BlazorHelloWorld -c Release -o $(Build.ArtifactStagingDirectory)
