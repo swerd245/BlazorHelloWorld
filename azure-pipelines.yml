@@ -11,8 +11,8 @@ steps:
     version: '6.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- script: tree /f /a || ls -R
-  displayName: 'Show directory structure'
+#- script: tree /f /a || ls -R
+#  displayName: 'Show directory structure'
 
 - script: dotnet build ./BlazorHelloWorld.csproj -c Release
   displayName: 'Build Blazor app'
