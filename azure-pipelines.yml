@@ -1,19 +1,44 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-trigger:
+# main branch에 push됬을때 trigger가 작동
+trigger: 
 - main
 
+# 에이전트 풀 설정. Windows 기반 최신 가상 이미지 사용
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'windows-latest' 
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+# .NET Core SDK를 설치
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    # .NET 8.0을 지원하는 SDK 버전으로 업데이트
+    version: '8.0.x' 
+    # .NET 8.0이 아직 프리뷰 상태인 경우 활성화
+    includePreviewVersions: true 
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 
+# Blazor 프로젝트 빌드
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    # 'BlazorHelloWorld.csproj' 프로젝트를 릴리즈 모드로 빌드
+    # '$(Build.SourcesDirectory'는 소스코드가 체크아웃된 디렉토리
+    dotnet build $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release
+  displayName: 'Build Blazor app'
+
+# Blazor 앱 발행
+- script: |
+    dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish Blazor app'
+
+# Azure Web App 배포
+- task: AzureWebApp@1
+  inputs:
+  	# Azure 구독 이름 또는 서비스 연결 이름
+    azureSubscription: 'Azure subscription 1'
+    # webAppWindows, 웹앱의 호스팅 환경
+    appType: 'webAppWindows'
+    # Azure Web App 이름
+    appName: 'AzureDevOpsShua'
+    # Blazor 애플리케이션 런타임 스택
+    runtimeStack: 'DOTNET|8.0' # 프로젝트와 일치하는 .NET 버전으로 수정
+    # 배포할 패키지의 위치
+    package: $(Build.ArtifactStagingDirectory)
