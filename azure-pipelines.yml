@@ -11,20 +11,18 @@ steps:
     version: '6.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-#- script: |
-#    dotnet build $(blazorProjectPath) --configuration Release
-#  displayName: 'Build Blazor Project'
-
-- script: dotnet build D:\BlazorHelloWorld.csproj -c Release
+- script: |
+    dotnet build $(Build.SourcesDirectory)/{BlazorHelloWorld.csproj 파일의 상대 경로} -c Release
   displayName: 'Build Blazor app'
 
-- script: dotnet publish $D:\BlazorHelloWorld -c Release -o $(Build.ArtifactStagingDirectory)
+- script: |
+    dotnet publish $(Build.SourcesDirectory)/{BlazorHelloWorld 프로젝트 폴더의 상대 경로} -c Release -o $(Build.ArtifactStagingDirectory)
   displayName: 'Publish Blazor app'
 
 - task: AzureWebApp@1
   inputs:
-    azureSubscription: 'Azure subscription 1' # Azure 구독 이름 또는 서비스 연결 이름
-    appType: 'webAppWindows' # 수정: 운영체제에 맞춰 변경
-    appName: 'AzureDevOpsShua' # Azure Web App 이름
-    runtimeStack: 'DOTNET|8.0' # 수정: .NET 버전에 맞춰 변경 (적절한 값으로 대체 필요)
-    package: $(Build.ArtifactStagingDirectory) # 배포할 패키지의 위치
+    azureSubscription: 'Azure subscription 1'
+    appType: 'webAppWindows'
+    appName: 'AzureDevOpsShua'
+    runtimeStack: 'DOTNET|8.0'
+    package: $(Build.ArtifactStagingDirectory)
