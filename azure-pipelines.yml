@@ -32,7 +32,7 @@ steps:
 # Azure Web App 배포
 - task: AzureWebApp@1
   inputs:
-  	# Azure 구독 이름 또는 서비스 연결 이름
+    # Azure 구독 이름 또는 서비스 연결 이름
     azureSubscription: 'Azure subscription 1'
     # webAppWindows, 웹앱의 호스팅 환경
     appType: 'webAppWindows'
