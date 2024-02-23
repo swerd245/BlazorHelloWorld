@@ -21,7 +21,7 @@ stages:
     - script: |
         dotnet build $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release
       displayName: 'Build Blazor app'
-
+    # 경로수정
     - script: |
         dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)
       displayName: 'Publish Blazor app'
