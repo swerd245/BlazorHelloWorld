@@ -93,11 +93,12 @@ stages:
     steps:
     - script: |
         echo "Slack 알림 전송 시작..."
-        curl -v -X POST -H 'Content-type: application/json' \
-        --data '{"text":"Azure DevOps Pipeline 알림: 빌드 및 배포 프로세스가 실행되었습니다."}' \
-        https://hooks.slack.com/services/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 \
-        -o response.txt -D -
-        cat response.txt
+        curl -X POST --data-urlencode "payload={\
+          \"channel\": \"#my-channel-here\", \
+          \"username\": \"webhookbot\", \
+          \"text\": \"이 항목은 #my-channel-here에 포스트되며 webhookbot이라는 봇에서 제공됩니다. 중요한 알림이 있습니다! 자세히 알아보려면 <https://alert-system.com/alerts/1234|여기를 클릭>하세요.\", \
+          \"icon_emoji\": \":ghost:\"\
+        }" https://hooks.slack.com/services/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
         echo "Slack 알림 전송 완료."
       displayName: 'Send Notification to Slack'
       condition: always()
