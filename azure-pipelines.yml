@@ -82,7 +82,6 @@ stages:
               runtimeStack: 'DOTNET|8.0'
               package: '$(System.ArtifactsDirectory)/drop'
 
-stages:
 - stage: NotifySlack
   displayName: 'Notify Slack'
   jobs:
