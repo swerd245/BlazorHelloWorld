@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 ﻿<Project>
   <Import Project="..\buildMultiTargeting\BlazorHelloWorld.props" />
+=======
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\BlazorHelloWorld.props" />
+>>>>>>> develop
 </Project>
