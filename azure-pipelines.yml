@@ -55,7 +55,7 @@ stages:
               appType: 'webAppWindows'
               appName: 'AzureDevOpsShuaDev'
               runtimeStack: 'DOTNET|8.0'
-              package: '$(System.ArtifactsDirectory)/drop/**'
+              package: $(Build.ArtifactStagingDirectory)
 
 - stage: DeployToLive
   displayName: 'Deploy to Live Environment'
@@ -80,4 +80,4 @@ stages:
               appType: 'webAppWindows'
               appName: 'AzureDevOpsShua'
               runtimeStack: 'DOTNET|8.0'
-              package: '$(System.ArtifactsDirectory)/drop/**'
+              package: $(Build.ArtifactStagingDirectory)
