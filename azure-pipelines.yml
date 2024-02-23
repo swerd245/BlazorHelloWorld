@@ -1,45 +1,62 @@
-# trigger 실행 브랜치 정의
 trigger: 
 - main
 - develop
 
-# pipeline이 실행될 azent pool
 pool:
   vmImage: 'windows-latest'
 
-# 브랜치 구분 조건문
-variables:
-  # develop 브랜치일 경우 Dev 환경으로 설정
-  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/develop') }}:
-    webAppName: 'AzureDevOpsShuaDev'
-  # develop 브랜치가 아닐 경우 그 외 환경(main 포함)으로 설정
-  ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/develop') }}:
-    webAppName: 'AzureDevOpsShua'
+stages:
+- stage: Build
+  displayName: 'Build application'
+  jobs:
+  - job: Build
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+        includePreviewVersions: true
+        installationPath: $(Agent.ToolsDirectory)/dotnet
 
-steps:
-# .Net Cord SDK 설치
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.0.x'
-    includePreviewVersions: true
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+    - script: |
+        dotnet build $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release
+      displayName: 'Build Blazor app'
 
-# Blazor 프로젝트 빌드
-- script: |
-    dotnet build $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release
-  displayName: 'Build Blazor app'
+    - script: |
+        dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)
+      displayName: 'Publish Blazor app'
 
-# Blazor App Publish(발행된 파일 저장경로: $(Build.ArtifactStagingDirectory))
-- script: |
-    dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)
-  displayName: 'Publish Blazor app'
+- stage: DeployToDev
+  displayName: 'Deploy to Dev Environment'
+  jobs:
+  - deployment: DeployToDev
+    environment: 'Dev' # Dev 환경 이름
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'Azure subscription 1'
+              appType: 'webAppWindows'
+              appName: 'AzureDevOpsShuaDev' # Dev Web App 이름
+              runtimeStack: 'DOTNET|8.0'
+              package: $(Pipeline.Workspace)/path/to/artifact
 
-# Azure Web App으로 배포
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'Azure subscription 1' # Azure 구독
-    appType: 'webAppWindows' # 웹 앱의 호스팅 환경
-    appName: $(webAppName) # 동적으로 설정된 앱 이름을 사용
-    runtimeStack: 'DOTNET|8.0' # 프로젝트와 일치하는 .NET 버전으로 수정
-    package: $(Build.ArtifactStagingDirectory) # 배포할 패키지 위치
+- stage: DeployToLive
+  displayName: 'Deploy to Live Environment'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployToLive
+    environment: 'Live' # Live 환경 이름, 승인 과정 설정 필요
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'Azure subscription 1'
+              appType: 'webAppWindows'
+              appName: 'AzureDevOpsShua' # Live Web App 이름
+              runtimeStack: 'DOTNET|8.0'
+              package: $(Pipeline.Workspace)/path/to/artifact
