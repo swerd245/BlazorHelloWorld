@@ -23,12 +23,12 @@ stages:
       displayName: 'Build Blazor app'
 
     - script: |
-        dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)
+        dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)\publish
       displayName: 'Publish Blazor app'
 
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)\publish'
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
@@ -37,7 +37,7 @@ stages:
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
   jobs:
   - deployment: DeployToDev
-    environment: 'Dev'
+    environment: 'Dev' # Dev 환경 이름, 승인 과정 설정 필요
     strategy:
       runOnce:
         deploy:
@@ -55,14 +55,14 @@ stages:
               appType: 'webAppWindows'
               appName: 'AzureDevOpsShuaDev'
               runtimeStack: 'DOTNET|8.0'
-              package: $(Build.ArtifactStagingDirectory)
+              package: '$(System.ArtifactsDirectory)/drop/publish'
 
 - stage: DeployToLive
   displayName: 'Deploy to Live Environment'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   jobs:
   - deployment: DeployToLive
-    environment: 'Live'
+    environment: 'Live' # Live 환경 이름, 승인 과정 설정 필요
     strategy:
       runOnce:
         deploy:
@@ -80,4 +80,4 @@ stages:
               appType: 'webAppWindows'
               appName: 'AzureDevOpsShua'
               runtimeStack: 'DOTNET|8.0'
-              package: $(Build.ArtifactStagingDirectory)
+              package: '$(System.ArtifactsDirectory)/drop/publish'
