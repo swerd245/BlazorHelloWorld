@@ -59,7 +59,7 @@ stages:
 
 - stage: DeployToLive
   displayName: 'Deploy to Live Environment'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
   - deployment: DeployToLive
     environment: 'Live'
