@@ -1,0 +1,83 @@
+trigger:
+- main
+- develop
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+- stage: Build
+  displayName: 'Build application'
+  jobs:
+  - job: Build
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+        includePreviewVersions: true
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - script: |
+        dotnet build $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release
+      displayName: 'Build Blazor app'
+
+    - script: |
+        dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)/publish
+      displayName: 'Publish Blazor app'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/publish'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: DeployToDev
+  displayName: 'Deploy to Dev Environment'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+  jobs:
+  - deployment: DeployToDev
+    environment: 'Dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'Azure subscription 1'
+              appType: 'webAppWindows'
+              appName: 'AzureDevOpsShuaDev'
+              runtimeStack: 'DOTNET|8.0'
+              package: '$(System.ArtifactsDirectory)/drop'
+
+- stage: DeployToLive
+  displayName: 'Deploy to Live Environment'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployToLive
+    environment: 'Live'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'Azure subscription 1'
+              appType: 'webAppWindows'
+              appName: 'AzureDevOpsShua'
+              runtimeStack: 'DOTNET|8.0'
+              package: '$(System.ArtifactsDirectory)/drop'
