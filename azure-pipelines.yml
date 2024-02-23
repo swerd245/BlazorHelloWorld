@@ -82,16 +82,24 @@ stages:
               runtimeStack: 'DOTNET|8.0'
               package: '$(System.ArtifactsDirectory)/drop'
 
-- bash: |
-    echo "Pipeline 실행 시작"
-    if [ "$(Build.Reason)" == "Manual" ] && [ "$(Build.SourceBranchName)" == "develop" ]; then
-      echo "Develop 브랜치 배포 성공 알림 전송 시도"
-      curl -X POST -H 'Content-type: application/json' --data '{"text":"Develop 브랜치가 성공적으로 Dev 환경에 배포되었습니다. Build: $(Build.BuildNumber)"}' https://hooks.slack.com/services/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
-    elif [ "$(Agent.JobStatus)" != "Succeeded" ]; then
-      echo "빌드 또는 배포 실패 알림 전송 시도"
-      curl -X POST -H 'Content-type: application/json' --data '{"text":"빌드나 배포 과정에서 문제가 발생했습니다. Build: $(Build.BuildNumber), Branch: $(Build.SourceBranchName)"}' https://hooks.slack.com/services/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
-    else
-      echo "알림 조건에 맞지 않음"
-    fi
-  displayName: 'Send Notification to Slack'
-  condition: always()
+stages:
+- stage: NotifySlack
+  displayName: 'Notify Slack'
+  jobs:
+  - job: Notify
+    pool:
+      vmImage: 'ubuntu-latest' # 'bash'를 사용하기 위해 Linux 이미지를 사용합니다.
+    steps:
+    - bash: |
+        echo "Pipeline 실행 시작"
+        if [ "$(Build.Reason)" == "Manual" ] && [ "$(Build.SourceBranchName)" == "develop" ]; then
+          echo "Develop 브랜치 배포 성공 알림 전송 시도"
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Develop 브랜치가 성공적으로 Dev 환경에 배포되었습니다. Build: $(Build.BuildNumber)"}' https://hooks.slack.com/services/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
+        elif [ "$(Agent.JobStatus)" != "Succeeded" ]; then
+          echo "빌드 또는 배포 실패 알림 전송 시도"
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"빌드나 배포 과정에서 문제가 발생했습니다. Build: $(Build.BuildNumber), Branch: $(Build.SourceBranchName)"}' https://hooks.slack.com/services/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
+        else
+          echo "알림 조건에 맞지 않음"
+      displayName: 'Send Notification to Slack'
+      condition: always()
+
