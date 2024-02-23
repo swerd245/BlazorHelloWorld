@@ -62,7 +62,7 @@ stages:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   jobs:
   - deployment: DeployToLive
-    environment: 'AzureDevOpsShuaLive'
+    environment: 'AzureDevOpsShua'
     strategy:
       runOnce:
         deploy:
