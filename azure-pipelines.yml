@@ -1,4 +1,4 @@
-trigger: 
+trigger:
 - main
 - develop
 
@@ -21,42 +21,63 @@ stages:
     - script: |
         dotnet build $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release
       displayName: 'Build Blazor app'
-    # 경로수정
+
     - script: |
         dotnet publish $(Build.SourcesDirectory)\BlazorHelloWorld.csproj -c Release -o $(Build.ArtifactStagingDirectory)
       displayName: 'Publish Blazor app'
 
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
 - stage: DeployToDev
   displayName: 'Deploy to Dev Environment'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
   jobs:
   - deployment: DeployToDev
-    environment: 'Dev' # Dev 환경 이름
+    environment: 'AzureDevOpsShuaDev'
     strategy:
       runOnce:
         deploy:
           steps:
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
           - task: AzureWebApp@1
             inputs:
               azureSubscription: 'Azure subscription 1'
               appType: 'webAppWindows'
-              appName: 'AzureDevOpsShuaDev' # Dev Web App 이름
+              appName: 'AzureDevOpsShuaDev'
               runtimeStack: 'DOTNET|8.0'
-              package: $(Pipeline.Workspace)/path/to/artifact
+              package: '$(System.ArtifactsDirectory)/drop'
 
 - stage: DeployToLive
   displayName: 'Deploy to Live Environment'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   jobs:
   - deployment: DeployToLive
-    environment: 'Live' # Live 환경 이름, 승인 과정 설정 필요
+    environment: 'AzureDevOpsShuaLive'
     strategy:
       runOnce:
         deploy:
           steps:
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
           - task: AzureWebApp@1
             inputs:
               azureSubscription: 'Azure subscription 1'
               appType: 'webAppWindows'
-              appName: 'AzureDevOpsShua' # Live Web App 이름
+              appName: 'AzureDevOpsShua'
               runtimeStack: 'DOTNET|8.0'
-              package: $(Pipeline.Workspace)/path/to/artifact
+              package: '$(System.ArtifactsDirectory)/drop'
