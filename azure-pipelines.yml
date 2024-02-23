@@ -81,3 +81,18 @@ stages:
               appName: 'AzureDevOpsShua'
               runtimeStack: 'DOTNET|8.0'
               package: '$(System.ArtifactsDirectory)/drop'
+
+- stage: NotifySlack
+  displayName: 'Notify Slack'
+  condition: always() # 이 stage는 항상 실행되도록 설정
+  jobs:
+  - job: Notify
+    steps:
+    - bash: |
+        if [ "$(Build.Reason)" == "Manual" ] && [ "$(Build.SourceBranchName)" == "develop" ]; then
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Develop 브랜치가 성공적으로 Dev 환경에 배포되었습니다. Build: $(Build.BuildNumber)"}' https://hooks.slack.com/services/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
+        elif [ "$(Agent.JobStatus)" != "Succeeded" ]; then
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"빌드나 배포 과정에서 문제가 발생했습니다. Build: $(Build.BuildNumber), Branch: $(Build.SourceBranchName)"}' https://hooks.slack.com/services/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
+        fi
+      displayName: 'Send Notification to Slack'
+      condition: always()
