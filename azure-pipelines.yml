@@ -94,10 +94,10 @@ stages:
     - script: |
         echo "Slack 알림 전송 시작..."
         curl -X POST --data-urlencode "payload={\
-          \"channel\": \"#my-channel-here\", \
+          \"channel\": \"#deployment-results-notification\", \
           \"username\": \"webhookbot\", \
-          \"text\": \"이 항목은 #my-channel-here에 포스트되며 webhookbot이라는 봇에서 제공됩니다. 중요한 알림이 있습니다! 자세히 알아보려면 <https://alert-system.com/alerts/1234|여기를 클릭>하세요.\", \
-          \"icon_emoji\": \":ghost:\"\
+          \"text\": \"#deployment-results-notification 채널에 중요한 배포 결과를 알립니다. 자세한 내용을 확인하세요. <https://alert-system.com/alerts/1234|여기를 클릭>하세요.\", \
+          \"icon_emoji\": \":rocket:\"\
         }" https://hooks.slack.com/services/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
         echo "Slack 알림 전송 완료."
       displayName: 'Send Notification to Slack'
