@@ -92,7 +92,11 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - script: |
-        echo "Notify Slack Step 실행"
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Azure DevOps Pipeline 알림: 빌드 및 배포 프로세스가 실행되었습니다."}' https://hooks.slack.com/services/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
+        echo "Slack 알림 전송 시작..."
+        curl -v -X POST -H 'Content-type: application/json' \
+        --data '{"text":"Azure DevOps Pipeline 알림: 빌드 및 배포 프로세스가 실행되었습니다."}' \
+        https://hooks.slack.com/services/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
+        echo "Slack 알림 전송 완료."
       displayName: 'Send Notification to Slack'
       condition: always()
+
