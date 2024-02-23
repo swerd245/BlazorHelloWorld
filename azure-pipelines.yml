@@ -91,6 +91,10 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - script: echo "Notify Slack Step 실행"
-      displayName: 'Echo Test'
-      condition: always() # 이 단계가 항상 실행되도록 설정
+    - script: |
+        echo "Notify Slack Step 실행"
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"Azure DevOps Pipeline 알림: 빌드 및 배포 프로세스가 실행되었습니다."}' \
+        https://hooks.slack.com/services/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
+      displayName: 'Send Notification to Slack'
+      condition: always()
