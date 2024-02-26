@@ -94,18 +94,19 @@ stages:
       - powershell: |
           try {
             $payload = @{
-                "channel" = "#deployment-results-notification";
-                "username" = "webhookbot";
-                "text" = "이 항목은 #deployment-results-notification 채널에 포스트되며 webhookbot이라는 봇에서 제공됩니다.";
-                "icon_emoji" = ":rocket:";
+                channel = "#deployment-results-notification";
+                username = "webhookbot";
+                text = "이 항목은 #deployment-results-notification 채널에 포스트되며 webhookbot이라는 봇에서 제공됩니다.";
+                icon_emoji = ":rocket:";
             }
             $json = $payload | ConvertTo-Json -Compress
             $response = Invoke-RestMethod -Uri "https://hooks.slack.com/services/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" -Method Post -Body $json -ContentType "application/json"
-            Write-Output "Slack 알림 전송 성공: $response"
+            Write-Host "Response: $response"
           } catch {
-            Write-Error "Slack 알림 전송 실패: $_"
+            Write-Host "HTTP Request failed with status code $($_.Exception.Response.StatusCode.value__) and message $($_.Exception.Message)"
             exit 1
           }
         displayName: 'Send Notification to Slack'
         condition: always()
+
 
