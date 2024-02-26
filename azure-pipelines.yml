@@ -81,32 +81,3 @@ stages:
               appName: 'AzureDevOpsShua'
               runtimeStack: 'DOTNET|8.0'
               package: '$(System.ArtifactsDirectory)/drop'
-
-- stage: NotifySlack
-  displayName: 'Notify Slack'
-  condition: always()  # 이 스테이지가 항상 실행되도록 설정
-  jobs:
-  - job: Notify
-    displayName: 'Notify Job'
-    pool:
-      vmImage: 'windows-latest'
-    steps:
-      - powershell: |
-          try {
-            $payload = @{
-                channel = "#deployment-results-notification";
-                username = "webhookbot";
-                text = "이 항목은 #deployment-results-notification 채널에 포스트되며 webhookbot이라는 봇에서 제공됩니다.";
-                icon_emoji = ":rocket:";
-            }
-            $json = $payload | ConvertTo-Json -Compress
-            $response = Invoke-RestMethod -Uri "https://hooks.slack.com/services/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" -Method Post -Body $json -ContentType "application/json"
-            Write-Host "Response: $response"
-          } catch {
-            Write-Host "HTTP Request failed with status code $($_.Exception.Response.StatusCode.value__) and message $($_.Exception.Message)"
-            exit 1
-          }
-        displayName: 'Send Notification to Slack'
-        condition: always()
-
-
