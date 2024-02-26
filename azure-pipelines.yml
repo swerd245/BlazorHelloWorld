@@ -89,7 +89,7 @@ stages:
   - job: Notify
     displayName: 'Notify Job'
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: 'windows-latest'
     steps:
     - script: |
         echo "Slack 알림 전송 시작..."
